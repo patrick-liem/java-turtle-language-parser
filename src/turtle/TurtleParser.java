@@ -4,12 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
-public class Step1Parser {
+public class TurtleParser {
 	
 	private Scanner codeScanner;
 	private String currentWord;
 	
-	public Step1Parser(String file) {
+	public TurtleParser(String file) {
 		try {
 			codeScanner = new Scanner(new File(file));
 		} catch (FileNotFoundException e) {
@@ -94,21 +94,59 @@ public class Step1Parser {
 	private GrammarNode checkStatement() {
 		GrammarNode statementNode = new GrammarNode("statement", null);
 		
-		GrammarNode commandNode = checkCommand();
-		if (commandNode == null) {
+		currentWord = codeScanner.next();
+		
+		GrammarNode loopNode = checkLoop();
+		if (loopNode == null) {
+			GrammarNode commandNode = checkCommand();
+			if (commandNode == null) {
+				return null;
+			}
+		
+			statementNode.children.add(commandNode);
+			
+			return statementNode;
+		}
+		
+		statementNode.children.add(loopNode);
+		
+		return statementNode;
+	}
+	
+	private GrammarNode checkLoop() {
+		GrammarNode loopNode = new GrammarNode("loop", null);
+		
+		//currentWord = codeScanner.next();
+		
+		if (!currentWord.equals("loop")) {
 			return null;
 		}
 		
-		statementNode.children.add(commandNode);
+		loopNode.children.add(new GrammarNode("loop", "loop"));
 		
-		return statementNode;
+		GrammarNode countNode = checkCount();
+		if (countNode == null) {
+			System.out.println("invalid count");
+			return null;
+		}
+		loopNode.children.add(countNode);
+		
+		GrammarNode blockNode = checkBlock();
+		if (blockNode == null) {
+			System.out.println("invalid loop block");
+			return null;
+		}
+		loopNode.children.add(blockNode);
+		
+		return loopNode;
+		
 	}
 	
 	private GrammarNode checkCommand() {
 		
 		GrammarNode commandNode = new GrammarNode("command", null);
 		
-		currentWord = codeScanner.next();
+		//currentWord = codeScanner.next();
 		
 		//System.out.println("Checking command: " + currentWord);
 		
@@ -156,6 +194,10 @@ public class Step1Parser {
 	}
 	
 	private GrammarNode checkAngle() {
+		return checkNumber();
+	}
+	
+	private GrammarNode checkCount() {
 		return checkNumber();
 	}
 	
