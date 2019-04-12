@@ -1,3 +1,7 @@
+/**
+ * This class is a special node that is used for building the Abstract Syntax Tree of a Turtle Graphics program
+ */
+
 package turtle;
 
 import java.util.ArrayList;
@@ -13,6 +17,11 @@ public class GrammarNode {
 		children = new ArrayList<GrammarNode>();
 	}
 	
+	/**
+	 * Recursive method that performs a preorder traversal of the tree (assuming the current node is the root)
+	 * and returns each leaf it encounters.
+	 * @return An ArrayList of the leaves of the tree.
+	 */
 	public ArrayList<String> leafPreorderTraversal() {
 		ArrayList<String> leafValues = new ArrayList<String>();
 		
@@ -27,7 +36,11 @@ public class GrammarNode {
 		return leafValues;
 	}
 	
-	public void leafPreorderTraversal(ArrayList<String> currentLeaves) {
+	/**
+	 * Recursive helper method
+	 * @param currentLeaves The leaves found so far
+	 */
+	private void leafPreorderTraversal(ArrayList<String> currentLeaves) {
 		
 		if (children.isEmpty()) {
 			currentLeaves.add(data);

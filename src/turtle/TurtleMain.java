@@ -1,11 +1,24 @@
+/**
+ * This class runs a program written in the Turtle Graphics language. It uses the TurtleParser class
+ * to ensure that the code is valid, and to get the commands it has to run. It then converts the commands
+ * to Java code and executes them. The TurtleMain class will not create the TurtleGUI if the program 
+ * is not written with valid syntax.
+ * 
+ * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * 
+ */
+
 package turtle;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class TurtleMain {
 
 	private static ArrayList<String> commands;
 	private static DrawableTurtle turtle;
+	
+	private static HashMap<String, Integer> variables = new HashMap<String, Integer>();
 	
 	/**
 	 * Main method.
@@ -44,7 +57,6 @@ public class TurtleMain {
 			chunk.add(commands.get(0));
 			commands.remove(0);
 		}
-		System.out.println(chunk);
 		
 		return chunk;
 	}
@@ -62,17 +74,32 @@ public class TurtleMain {
 			case "begin":
 				break;
 			case "forward":
-				int distance = Integer.parseInt(commands.get(0));
+				int distance;
+				try {
+					distance = Integer.parseInt(commands.get(0));
+				} catch (NumberFormatException e) {
+					distance = variables.get(commands.get(0));
+				}
 				commands.remove(0);
 				turtle.forward(distance);
 				break;
 			case "turn":
-				int angle = Integer.parseInt(commands.get(0));
+				int angle;
+				try {
+					angle = Integer.parseInt(commands.get(0));
+				} catch (NumberFormatException e) {
+					angle = variables.get(commands.get(0));
+				}
 				commands.remove(0);
 				turtle.turn(angle);
 				break;
 			case "loop":
-				int max = Integer.parseInt(commands.get(0));
+				int max;
+				try {
+					max = Integer.parseInt(commands.get(0));
+				} catch (NumberFormatException e) {
+					max = variables.get(commands.get(0));
+				}
 				commands.remove(0);
 				ArrayList<String> chunk = getBlock();
 				for (int i = 0; i < max; i++) {
@@ -82,6 +109,13 @@ public class TurtleMain {
 				break;
 			case "programEnd":
 				break;
+			default:
+				String variable = currentCommand;
+				//remove equals sign
+				commands.remove(0);
+				int value = Integer.parseInt(commands.get(0));
+				commands.remove(0);
+				variables.put(variable, value);
 				
 			}
 		}

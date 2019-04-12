@@ -1,3 +1,12 @@
+/**
+ * This class takes a program written in the Turtle Graphics language and ensures it is syntactically correct.
+ * It then returns an ArrayList of the commands that the program contains. If the program is not valid, then
+ * the TurtleParser class will print out a reason that it is invalid.
+ * 
+ * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * 
+ */
+
 package turtle;
 
 import java.io.File;
@@ -156,8 +165,15 @@ public class TurtleParser {
 		
 		if (!currentWord.equals("forward")) {
 			if (!currentWord.equals("turn")) {
-				System.out.println("invalid command");
-				return null;
+				GrammarNode assignment = checkAssignment();
+				
+				if (assignment == null) {
+					return null;
+				}
+				
+				commandNode.children.add(assignment);
+				return commandNode;
+				
 			}
 			
 			commandNode.children.add(new GrammarNode("turn", "turn"));
@@ -189,16 +205,76 @@ public class TurtleParser {
 		return commandNode;
 	}
 	
+	private GrammarNode checkAssignment() {
+		GrammarNode assignmentNode = new GrammarNode("assignment", null);
+		
+		GrammarNode variableNode = checkVariable();
+		if (variableNode == null) {
+			return null;
+		}
+		
+		assignmentNode.children.add(variableNode);
+		
+		
+		currentWord = codeScanner.next();
+		if (!currentWord.equals("=")) {
+			return null;
+		}
+		
+		assignmentNode.children.add(new GrammarNode("=", "="));
+		
+		GrammarNode numberNode = checkNumber();
+		
+		if (numberNode == null) {
+			return null;
+		}
+		assignmentNode.children.add(numberNode);
+
+		return assignmentNode;
+		
+	}
+	
+	private GrammarNode checkVariable() {
+		if (currentWord.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
+			return new GrammarNode("string", currentWord);
+		}
+		return null;
+	}
+	
 	private GrammarNode checkDistance() {
-		return checkNumber();
+		GrammarNode numberNode = checkNumber();
+		if (numberNode == null) {
+			GrammarNode variableNode = checkVariable();
+			if (variableNode == null) {
+				return null;
+			}
+			return variableNode;
+		}
+		return numberNode;
 	}
 	
 	private GrammarNode checkAngle() {
-		return checkNumber();
+		GrammarNode numberNode = checkNumber();
+		if (numberNode == null) {
+			GrammarNode variableNode = checkVariable();
+			if (variableNode == null) {
+				return null;
+			}
+			return variableNode;
+		}
+		return numberNode;
 	}
 	
 	private GrammarNode checkCount() {
-		return checkNumber();
+		GrammarNode numberNode = checkNumber();
+		if (numberNode == null) {
+			GrammarNode variableNode = checkVariable();
+			if (variableNode == null) {
+				return null;
+			}
+			return variableNode;
+		}
+		return numberNode;
 	}
 	
 	private GrammarNode checkNumber() {
