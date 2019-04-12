@@ -1,0 +1,17 @@
+begin
+	times =	4
+	forward	10
+	turn 90
+	dist = 40
+	angle =	60
+	loop times
+	begin
+		forward	dist
+		turn angle
+	end
+	angle =	90
+	turn angle
+	turn angle
+	forward	dist
+end
+programEnd

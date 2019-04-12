@@ -1,0 +1,13 @@
+begin
+	forward	10
+	turn 90
+	loop 4
+	begin
+		forward	40
+		turn 90
+	end
+	turn 60
+	turn 60
+	forward	100
+end
+programEnd

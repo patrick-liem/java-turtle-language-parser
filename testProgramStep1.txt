@@ -1,0 +1,11 @@
+begin
+	forward 10
+	turn 90
+	forward	10
+	turn 90
+	forward	10
+	turn 90
+	forward	10
+	turn 90
+end
+programEnd
