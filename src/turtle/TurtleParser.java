@@ -14,10 +14,16 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class TurtleParser {
-	
+
+	private boolean error = false;
+
 	private Scanner codeScanner;
 	private String currentWord;
-	
+
+	/**
+	 * The constructor creates a new TurtleParser object for a given file that contains a turtle program
+	 * @param file The file that contains the turtle program
+	 */
 	public TurtleParser(String file) {
 		try {
 			codeScanner = new Scanner(new File(file));
@@ -26,68 +32,94 @@ public class TurtleParser {
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * Checks the turtle program for syntax errors and returns a node that is the root of the
+	 * abstract syntax tree of the program. If the program contains syntax errors, it returns null instead.
+	 * @return The root of an abstract syntax tree representing the turtle program. If the program contains syntax errors, it returns null instead.
+	 */
 	public GrammarNode checkProgram() {
 		GrammarNode root = new GrammarNode("program", null);
-		
+
 		GrammarNode blockNode = checkBlock();
-		
+
 		if (blockNode == null) {
-			System.out.println("program block was not formatted correctly");
 			return null;
 		}
-		
+
 		root.children.add(blockNode);
-		
-		
-		currentWord = codeScanner.next();
-		
-		if (!currentWord.equals("programEnd")) {
-			System.out.println("no programEnd statement");
+
+		if (codeScanner.hasNext()) {
+			currentWord = codeScanner.next();
+			
+			if (!currentWord.equals("programEnd")) {
+				if (!error) {
+					error = true;
+					System.out.println("Syntax Error: Missing programEnd statement.");
+				}
+				return null;
+			}
+			
+		} else {
+			error = true;
+			System.out.println("Syntax Error: Missing programEnd statement.");
 			return null;
 		}
-		
+
 		root.children.add(new GrammarNode("programEnd", "programEnd"));
-		
+
 		return root;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a block nonterminal.
+	 * @return A node that represents a block nonterminal
+	 */
 	private GrammarNode checkBlock() {
-		
+
 		GrammarNode blockNode = new GrammarNode("block", null);
-		
+
 		currentWord = codeScanner.next();
 		if (!currentWord.equals("begin")) {
-			System.out.println("missing begin statement");
+			if (!error) {
+				error = true;
+				System.out.println("Syntax Error: Missing begin statement for program block.");
+			}
 			return null;
 		}
-		
+
 		blockNode.children.add(new GrammarNode("begin", "begin"));
-		
+
 		GrammarNode statementListNode = checkStatementList();
-		
+
 		if (statementListNode == null) {
-			System.out.println("bad statement list");
 			return null;
 		}
-		
+
 		blockNode.children.add(statementListNode);
-		
+
 		if (!currentWord.equals("end")) {
-			System.out.println("missing end statement");
+			if (!error) {
+				error = true;
+				System.out.println("Syntax Error: Missing end statement for program block.");
+			}
 			return null;
 		}
-		
+
 		blockNode.children.add(new GrammarNode("end", "end"));
-		
+
 		return blockNode;
-		
+
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a statementList nonterminal.
+	 * @return A node that represents a statementList nonterminal
+	 */
 	private GrammarNode checkStatementList() {
-		
+
 		GrammarNode statementListNode = new GrammarNode("statementList" , null);
-		
+
 		GrammarNode nextStatement = checkStatement();
 		if (nextStatement == null) {
 			return null;
@@ -97,150 +129,183 @@ public class TurtleParser {
 			nextStatement = checkStatement();
 		}
 		return statementListNode;
-		
+
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a statement nonterminal.
+	 * @return A node that represents a statement nonterminal
+	 */
 	private GrammarNode checkStatement() {
 		GrammarNode statementNode = new GrammarNode("statement", null);
 		
-		currentWord = codeScanner.next();
-		
+		if (codeScanner.hasNext())
+			currentWord = codeScanner.next();
+		else
+			return null;
+
 		GrammarNode loopNode = checkLoop();
 		if (loopNode == null) {
 			GrammarNode commandNode = checkCommand();
 			if (commandNode == null) {
 				return null;
 			}
-		
+
 			statementNode.children.add(commandNode);
-			
+
 			return statementNode;
 		}
-		
+
 		statementNode.children.add(loopNode);
-		
+
 		return statementNode;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a loop nonterminal.
+	 * @return A node that represents a loop nonterminal
+	 */
 	private GrammarNode checkLoop() {
 		GrammarNode loopNode = new GrammarNode("loop", null);
-		
-		//currentWord = codeScanner.next();
-		
+
 		if (!currentWord.equals("loop")) {
 			return null;
 		}
-		
+
 		loopNode.children.add(new GrammarNode("loop", "loop"));
-		
+
 		GrammarNode countNode = checkCount();
 		if (countNode == null) {
-			System.out.println("invalid count");
 			return null;
 		}
 		loopNode.children.add(countNode);
-		
+
 		GrammarNode blockNode = checkBlock();
 		if (blockNode == null) {
-			System.out.println("invalid loop block");
 			return null;
 		}
 		loopNode.children.add(blockNode);
-		
+
 		return loopNode;
-		
+
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a command nonterminal.
+	 * @return A node that represents a command nonterminal
+	 */
 	private GrammarNode checkCommand() {
-		
+
 		GrammarNode commandNode = new GrammarNode("command", null);
-		
-		//currentWord = codeScanner.next();
-		
-		//System.out.println("Checking command: " + currentWord);
-		
+
+
 		if (currentWord.equals("end")) {
 			return null;
 		}
-		
+
 		if (!currentWord.equals("forward")) {
 			if (!currentWord.equals("turn")) {
 				GrammarNode assignment = checkAssignment();
-				
+
 				if (assignment == null) {
 					return null;
 				}
-				
+
 				commandNode.children.add(assignment);
 				return commandNode;
-				
+
 			}
-			
+
 			commandNode.children.add(new GrammarNode("turn", "turn"));
-			
+
 			GrammarNode angleNode = checkAngle();
-			
+
 			if (angleNode == null) {
-				System.out.println("invalid angle");
 				return null;
 			}
-			
+
 			commandNode.children.add(angleNode);
-			
-			// Do turn stuff
+
 			return commandNode;
 		}
-		
+
 		commandNode.children.add(new GrammarNode("forward", "forward"));
-		
+
 		GrammarNode distanceNode = checkDistance();
-		
+
 		if (distanceNode == null) {
-			System.out.println("invalid distance");
 			return null;
 		}
-		
+
 		commandNode.children.add(distanceNode);
-		
+
 		return commandNode;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents an assignment nonterminal.
+	 * @return A node that represents an assignment nonterminal
+	 */
 	private GrammarNode checkAssignment() {
 		GrammarNode assignmentNode = new GrammarNode("assignment", null);
-		
+
 		GrammarNode variableNode = checkVariable();
 		if (variableNode == null) {
 			return null;
 		}
-		
+
 		assignmentNode.children.add(variableNode);
-		
-		
-		currentWord = codeScanner.next();
-		if (!currentWord.equals("=")) {
+
+		if (codeScanner.hasNext()) {
+			currentWord = codeScanner.next();
+		} else {
+			if (!error) {
+				error = true;
+				System.out.println("Syntax Error: Missing end statement for program block.");
+			}
 			return null;
 		}
-		
+			
+		if (!currentWord.equals("=")) {
+			if (!error) {
+				error = true;
+				System.out.println("Syntax Error: Expected \"=\", but found \"" + currentWord + "\"");
+			}
+			return null;
+		}
+
 		assignmentNode.children.add(new GrammarNode("=", "="));
-		
+
 		GrammarNode numberNode = checkNumber();
-		
+
 		if (numberNode == null) {
 			return null;
 		}
 		assignmentNode.children.add(numberNode);
 
 		return assignmentNode;
-		
+
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a variable nonterminal.
+	 * @return A node that represents a variable nonterminal
+	 */
 	private GrammarNode checkVariable() {
 		if (currentWord.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
 			return new GrammarNode("string", currentWord);
 		}
+		if (!error) {
+			error = true;
+			System.out.println("Syntax Error: Invalid variable name \"" + currentWord + "\"");
+		}
 		return null;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a distance nonterminal.
+	 * @return A node that represents a distance nonterminal
+	 */
 	private GrammarNode checkDistance() {
 		GrammarNode numberNode = checkNumber();
 		if (numberNode == null) {
@@ -252,7 +317,11 @@ public class TurtleParser {
 		}
 		return numberNode;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a angle nonterminal.
+	 * @return A node that represents a angle nonterminal
+	 */
 	private GrammarNode checkAngle() {
 		GrammarNode numberNode = checkNumber();
 		if (numberNode == null) {
@@ -264,7 +333,11 @@ public class TurtleParser {
 		}
 		return numberNode;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a count nonterminal.
+	 * @return A node that represents a count nonterminal
+	 */
 	private GrammarNode checkCount() {
 		GrammarNode numberNode = checkNumber();
 		if (numberNode == null) {
@@ -276,14 +349,25 @@ public class TurtleParser {
 		}
 		return numberNode;
 	}
-	
+
+	/**
+	 * Helper method that returns a node that represents a number nonterminal.
+	 * @return A node that represents a number nonterminal
+	 */
 	private GrammarNode checkNumber() {
 		
-		currentWord = codeScanner.next();
-		
-		//System.out.println("Check number: " + currentWord);
-		
+		if (codeScanner.hasNext())
+			currentWord = codeScanner.next();
+		else
+			return null;
+
 		if (!currentWord.matches("[0-9]+")) {
+			if (!currentWord.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
+				if (!error) {
+					error = true;
+					System.out.println("Syntax Error: Invalid number \"" + currentWord + "\"");
+				}
+			}
 			return null;
 		}
 		return new GrammarNode("NUMBER", currentWord);

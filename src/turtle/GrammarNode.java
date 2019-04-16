@@ -1,5 +1,6 @@
 /**
  * This class is a special node that is used for building the Abstract Syntax Tree of a Turtle Graphics program
+ * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
  */
 
 package turtle;
@@ -11,6 +12,13 @@ public class GrammarNode {
 	public String data;
 	public ArrayList<GrammarNode> children;
 	
+	/**
+	 * Constructs a new GrammarNode object, with the specified type and data. Type represents
+	 * the terminal or nonterminal that the node contains. Data is the actual value of the thing the
+	 * node contains, or null if the node represents a nonterminal.
+	 * @param type The kind of nonterminal or terminal the node contains
+	 * @param data The actual value of the terminal the node contains
+	 */
 	public GrammarNode(String type, String data) {
 		this.type = type;
 		this.data = data;

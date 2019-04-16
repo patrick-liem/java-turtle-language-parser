@@ -47,22 +47,8 @@ public class TurtleMain {
 	}
 	
 	/**
-	 * Gets a block of code and puts it into an ArrayList
-	 * @return An ArrayList containing the block of code
-	 */
-	private static ArrayList<String> getBlock() {
-		ArrayList<String> chunk = new ArrayList<String>();
-		
-		while (!commands.get(0).equals("end")) {
-			chunk.add(commands.get(0));
-			commands.remove(0);
-		}
-		
-		return chunk;
-	}
-	
-	/**
-	 * Converts the turtle code into real Java code and executes it
+	 * Converts the turtle code into real Java code and executes it.
+	 * Precondition: The turtle code must not contain syntax errors.
 	 * @param commands The turtle code commands to execute
 	 */
 	private static void doCommands(ArrayList<String> commands) {
@@ -121,9 +107,24 @@ public class TurtleMain {
 		}
 	}
 	
+	/**
+	 * Helper method that gets a block of code and puts it into an ArrayList.
+	 * @return An ArrayList containing the block of code
+	 */
+	private static ArrayList<String> getBlock() {
+		ArrayList<String> chunk = new ArrayList<String>();
+		
+		while (!commands.get(0).equals("end")) {
+			chunk.add(commands.get(0));
+			commands.remove(0);
+		}
+		
+		return chunk;
+	}
+	
 	
 	/**
-	 * Creates a deep copy of an ArrayList<String>
+	 * Helper method that creates a deep copy of an ArrayList<String>
 	 * 
 	 * @param original Array to be copied
 	 * @return The copy of the original array

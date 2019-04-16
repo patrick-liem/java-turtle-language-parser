@@ -1,0 +1,10 @@
+begin
+turn 90
+times = 5
+loop times
+begin
+forward 90.5
+turn 144
+end
+end
+programEnd
