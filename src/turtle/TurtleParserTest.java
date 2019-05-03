@@ -1,8 +1,9 @@
 /**
- * This class is used to test the TurtleParser class. It demonstrates that the TurtleParser class
- * will print the correct errors if the syntax of the turtle program is incorrect.
+ * This class is used to test the TurtleParser and TurtleLexer classes. It demonstrates that the TurtleParser class
+ * will print the correct errors if the syntax of the turtle program is incorrect. It also shows that TurtleLexer's
+ * methods works correctly.
  * 
- * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * @author Patrick Liem
  */
 package turtle;
 
@@ -79,4 +80,11 @@ public class TurtleParserTest {
 		assertEquals("Syntax Error: Invalid number \"90.5\"", outContent.toString().trim());
 	}
 	
+	@Test
+	public void testLexer() {
+		TurtleLexer tl = new TurtleLexer("testcases/lexertest.txt");
+		assertEquals(true, tl.hasNext());
+		assertEquals(new GrammarNode("TERMINAL", "begin"), tl.next());
+		assertEquals(false, tl.hasNext());
+	}
 }

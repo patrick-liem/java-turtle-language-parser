@@ -4,7 +4,7 @@
  * to Java code and executes them. The TurtleMain class will not create the TurtleGUI if the program 
  * is not written with valid syntax.
  * 
- * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * @author Patrick Liem
  * 
  */
 
@@ -37,7 +37,6 @@ public class TurtleMain {
 			turtle = new DrawableTurtle();
 			
 			commands = root.leafPreorderTraversal();
-			System.out.println(commands);
 			
 			doCommands(commands);
 			

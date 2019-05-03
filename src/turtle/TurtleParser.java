@@ -3,34 +3,26 @@
  * It then returns an ArrayList of the commands that the program contains. If the program is not valid, then
  * the TurtleParser class will print out a reason that it is invalid.
  * 
- * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * @author Patrick Liem
  * 
  */
 
 package turtle;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.util.Scanner;
 
 public class TurtleParser {
 
 	private boolean error = false;
 
-	private Scanner codeScanner;
-	private String currentWord;
+	private TurtleLexer codeScanner;
+	private GrammarNode currentWord;
 
 	/**
 	 * The constructor creates a new TurtleParser object for a given file that contains a turtle program
 	 * @param file The file that contains the turtle program
 	 */
 	public TurtleParser(String file) {
-		try {
-			codeScanner = new Scanner(new File(file));
-		} catch (FileNotFoundException e) {
-			System.out.println("Error reading file");
-			e.printStackTrace();
-		}
+			codeScanner = new TurtleLexer(file);
 	}
 
 	/**
@@ -52,7 +44,7 @@ public class TurtleParser {
 		if (codeScanner.hasNext()) {
 			currentWord = codeScanner.next();
 			
-			if (!currentWord.equals("programEnd")) {
+			if (!currentWord.data.equals("programEnd")) {
 				if (!error) {
 					error = true;
 					System.out.println("Syntax Error: Missing programEnd statement.");
@@ -80,7 +72,7 @@ public class TurtleParser {
 		GrammarNode blockNode = new GrammarNode("block", null);
 
 		currentWord = codeScanner.next();
-		if (!currentWord.equals("begin")) {
+		if (!currentWord.data.equals("begin")) {
 			if (!error) {
 				error = true;
 				System.out.println("Syntax Error: Missing begin statement for program block.");
@@ -98,7 +90,7 @@ public class TurtleParser {
 
 		blockNode.children.add(statementListNode);
 
-		if (!currentWord.equals("end")) {
+		if (!currentWord.data.equals("end")) {
 			if (!error) {
 				error = true;
 				System.out.println("Syntax Error: Missing end statement for program block.");
@@ -168,7 +160,7 @@ public class TurtleParser {
 	private GrammarNode checkLoop() {
 		GrammarNode loopNode = new GrammarNode("loop", null);
 
-		if (!currentWord.equals("loop")) {
+		if (!currentWord.data.equals("loop")) {
 			return null;
 		}
 
@@ -199,12 +191,12 @@ public class TurtleParser {
 		GrammarNode commandNode = new GrammarNode("command", null);
 
 
-		if (currentWord.equals("end")) {
+		if (currentWord.data.equals("end")) {
 			return null;
 		}
 
-		if (!currentWord.equals("forward")) {
-			if (!currentWord.equals("turn")) {
+		if (!currentWord.data.equals("forward")) {
+			if (!currentWord.data.equals("turn")) {
 				GrammarNode assignment = checkAssignment();
 
 				if (assignment == null) {
@@ -266,10 +258,10 @@ public class TurtleParser {
 			return null;
 		}
 			
-		if (!currentWord.equals("=")) {
+		if (!currentWord.data.equals("=")) {
 			if (!error) {
 				error = true;
-				System.out.println("Syntax Error: Expected \"=\", but found \"" + currentWord + "\"");
+				System.out.println("Syntax Error: Expected \"=\", but found \"" + currentWord.data + "\"");
 			}
 			return null;
 		}
@@ -292,12 +284,12 @@ public class TurtleParser {
 	 * @return A node that represents a variable nonterminal
 	 */
 	private GrammarNode checkVariable() {
-		if (currentWord.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
-			return new GrammarNode("string", currentWord);
+		if (currentWord.data.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
+			return new GrammarNode("string", currentWord.data);
 		}
 		if (!error) {
 			error = true;
-			System.out.println("Syntax Error: Invalid variable name \"" + currentWord + "\"");
+			System.out.println("Syntax Error: Invalid variable name \"" + currentWord.data + "\"");
 		}
 		return null;
 	}
@@ -361,15 +353,15 @@ public class TurtleParser {
 		else
 			return null;
 
-		if (!currentWord.matches("[0-9]+")) {
-			if (!currentWord.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
+		if (!currentWord.data.matches("[0-9]+")) {
+			if (!currentWord.data.matches("[a-zA-Z]+[a-zA-Z0-9]*")) {
 				if (!error) {
 					error = true;
-					System.out.println("Syntax Error: Invalid number \"" + currentWord + "\"");
+					System.out.println("Syntax Error: Invalid number \"" + currentWord.data + "\"");
 				}
 			}
 			return null;
 		}
-		return new GrammarNode("NUMBER", currentWord);
+		return new GrammarNode("NUMBER", currentWord.data);
 	}
 }

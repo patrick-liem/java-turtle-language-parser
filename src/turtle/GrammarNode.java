@@ -1,6 +1,6 @@
 /**
  * This class is a special node that is used for building the Abstract Syntax Tree of a Turtle Graphics program
- * @author Patrick Liem, Wenkai Zhao, Matthew Murch, Lei Liu
+ * @author Patrick Liem
  */
 
 package turtle;
@@ -59,4 +59,34 @@ public class GrammarNode {
 		}
 		
 	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		GrammarNode other = (GrammarNode) obj;
+		if (children == null) {
+			if (other.children != null)
+				return false;
+		} else if (!children.equals(other.children))
+			return false;
+		if (data == null) {
+			if (other.data != null)
+				return false;
+		} else if (!data.equals(other.data))
+			return false;
+		if (type == null) {
+			if (other.type != null)
+				return false;
+		} else if (!type.equals(other.type))
+			return false;
+		return true;
+	}
+	
+	
 }
